@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Agenda</title>
+  <style>
+    :root {
+      --bg-light: #fff;
+      --bg-dark: #121212;
+      --text-light: #000;
+      --text-dark: #fff;
+      --primary-light: #d32f2f;
+      --primary-dark: #2196f3;
+      --card-light: #ffffff;
+      --card-dark: #1e1e1e;
+    }
+
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background-color: var(--bg-light);
+      color: var(--text-light);
+      transition: background 0.4s ease, color 0.4s ease;
+      opacity: 0;
+      transform: translateY(30px);
+      animation: fadeSlideIn 0.6s forwards;
+    }
+
+    @keyframes fadeSlideIn {
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .dark-mode {
+      background-color: var(--bg-dark);
+      color: var(--text-dark);
+    }
+
+    body.modal-open {
+      overflow: hidden;
+    }
+
+    header {
+      background: var(--primary-light);
+      color: white;
+      padding: 1.2rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+
+    .dark-mode header {
+      background: var(--primary-dark);
+    }
+
+    .theme-toggle {
+      font-size: 1.2rem;
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: inherit;
+    }
+
+    .container {
+      max-width: 1000px;
+      margin: 2rem auto;
+      padding: 1rem;
+    }
+
+    .card {
+      background: var(--card-light);
+      padding: 2rem;
+      border-radius: 16px;
+      box-shadow: 0 0 25px rgba(0,0,0,0.07);
+      transition: background 0.3s;
+    }
+
+    .dark-mode .card {
+      background: var(--card-dark);
+    }
+
+    h2 {
+      margin-top: 0;
+      margin-bottom: 1.5rem;
+      text-align: center;
+    }
+
+    .actions {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .btn {
+      background: var(--primary-light);
+      color: white;
+      border: none;
+      padding: 0.7rem 1.2rem;
+      border-radius: 8px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    .btn:hover {
+      background: #b71c1c;
+    }
+
+    .dark-mode .btn {
+      background: var(--primary-dark);
+    }
+
+    .dark-mode .btn:hover {
+      background: #1769aa;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 1rem;
+    }
+
+    th, td {
+      border: 1px solid #ccc;
+      padding: 0.8rem;
+      text-align: left;
+    }
+
+    th {
+      background: var(--primary-light);
+      color: white;
+    }
+
+    .dark-mode th {
+      background: var(--primary-dark);
+    }
+
+    .dark-mode td {
+      background: #1e1e1e;
+      color: white;
+    }
+
+    .modal {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.6);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 9999;
+      backdrop-filter: blur(3px);
+    }
+
+    .modal.active {
+      display: flex;
+    }
+
+    .modal-content {
+      background: white;
+      padding: 2rem;
+      border-radius: 12px;
+      width: 90%;
+      max-width: 420px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+      animation: fadeIn 0.3s ease-out;
+      position: relative;
+      z-index: 10000;
+    }
+
+    .dark-mode .modal-content {
+      background: #222;
+      color: white;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .modal-content input,
+    .modal-content textarea {
+      width: 100%;
+      padding: 0.8rem;
+      margin-bottom: 1rem;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+    }
+
+    .dark-mode .modal-content input,
+    .dark-mode .modal-content textarea {
+      background: #333;
+      color: white;
+      border: 1px solid #555;
+    }
+
+    .btn-small {
+      padding: 0.4rem 0.8rem;
+      margin-left: 0.2rem;
+    }
+
+    .dark-mode .btn-small {
+      background-color: #1a1a1a;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div>Bem-vindo, {{ nome }}</div>
+    <div style="display: flex; gap: 1rem;">
+      <form action="/logout" method="GET">
+        <button class="btn">Logout</button>
+      </form>
+      <button class="theme-toggle" onclick="toggleTheme()">🌙</button>
+    </div>
+  </header>
+
+  <div class="container">
+    <div class="card">
+      <div class="actions">
+        <h2>Seus Contatos</h2>
+        <button class="btn" onclick="abrirModal()">+ Adicionar Contato</button>
+      </div>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Nome</th>
+            <th>Telefone</th>
+            <th>Email</th>
+            <th>Observações</th>
+            <th>Ações</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for c in contatos %}
+          <tr data-id="{{ c.id }}">
+            <td>{{ c.nome }}</td>
+            <td>{{ c.telefone }}</td>
+            <td>{{ c.email }}</td>
+            <td>{{ c.observacoes }}</td>
+            <td style="white-space: nowrap;">
+              <button class="btn btn-small" type="button" onclick="editarContato(this)">Editar</button>
+              <form action="/remover" method="POST" style="display:inline;">
+                <input type="hidden" name="id" value="{{ c.id }}">
+                <button class="btn btn-small" type="submit">Remover</button>
+              </form>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="modal" id="modal">
+    <div class="modal-content">
+      <h3 id="modal-title">Novo Contato</h3>
+      <form action="/adicionar" method="POST" id="form-modal">
+        <input type="hidden" name="id" id="input-id">
+        <input type="text" name="nome" id="input-nome" placeholder="Nome" required>
+        <input type="text" name="telefone" id="input-telefone" placeholder="Telefone" required>
+        <input type="email" name="email" id="input-email" placeholder="Email" required>
+        <textarea name="observacoes" id="input-observacoes" placeholder="Observações"></textarea>
+        <button class="btn" type="submit">Salvar</button>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    const modal = document.getElementById('modal');
+    const form = document.getElementById('form-modal');
+
+    function abrirModal() {
+      form.reset();
+      document.getElementById('input-id').value = '';
+      document.getElementById('modal-title').innerText = 'Novo Contato';
+      modal.classList.add('active');
+      document.body.classList.add('modal-open');
+    }
+
+    function editarContato(button) {
+      const row = button.closest('tr');
+      const id = row.getAttribute('data-id');
+      const cells = row.querySelectorAll('td');
+
+      document.getElementById('input-id').value = id;
+      document.getElementById('input-nome').value = cells[0].innerText;
+      document.getElementById('input-telefone').value = cells[1].innerText;
+      document.getElementById('input-email').value = cells[2].innerText;
+      document.getElementById('input-observacoes').value = cells[3].innerText;
+      document.getElementById('modal-title').innerText = 'Editar Contato';
+      modal.classList.add('active');
+      document.body.classList.add('modal-open');
+    }
+
+    window.onclick = function(e) {
+      if (e.target === modal) {
+        modal.classList.remove('active');
+        document.body.classList.remove('modal-open');
+      }
+    }
+
+    function toggleTheme() {
+      const isDark = document.body.classList.toggle('dark-mode');
+      localStorage.setItem('tema', isDark ? 'escuro' : 'claro');
+      document.querySelector('.theme-toggle').textContent = isDark ? '☀️' : '🌙';
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      const temaSalvo = localStorage.getItem('tema');
+      if (temaSalvo === 'escuro') {
+        document.body.classList.add('dark-mode');
+        document.querySelector('.theme-toggle').textContent = '☀️';
+      }
+    });
+  </script>
+</body>
+</html>
